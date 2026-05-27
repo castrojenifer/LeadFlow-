@@ -7,6 +7,14 @@ const useSupabaseRest = () => {
   return !!(process.env.SUPABASE_URL && process.env.SUPABASE_KEY);
 };
 
+// Clean and sanitize Supabase URL to handle trailing slashes or /rest/v1 suffix
+const getCleanSupabaseUrl = () => {
+  let url = process.env.SUPABASE_URL || '';
+  url = url.trim().replace(/\/+$/, ''); // Remove trailing slashes
+  url = url.replace(/\/rest\/v1$/, ''); // Remove trailing /rest/v1
+  return url;
+};
+
 // Generate standard Supabase headers
 const getSupabaseHeaders = () => ({
   'apikey': process.env.SUPABASE_KEY,
@@ -21,7 +29,7 @@ router.get('/', async (req, res, next) => {
 
     // OPTION A: Connect via Supabase REST API
     if (useSupabaseRest()) {
-      const baseUrl = process.env.SUPABASE_URL;
+      const baseUrl = getCleanSupabaseUrl();
       let url = `${baseUrl}/rest/v1/leads?select=*`;
 
       // Filter: status
@@ -122,7 +130,7 @@ router.post('/', async (req, res, next) => {
 
     // OPTION A: Write directly to Supabase REST
     if (useSupabaseRest()) {
-      const baseUrl = process.env.SUPABASE_URL;
+      const baseUrl = getCleanSupabaseUrl();
       const response = await fetch(`${baseUrl}/rest/v1/leads`, {
         method: 'POST',
         headers: {
@@ -184,7 +192,7 @@ router.put('/:id', async (req, res, next) => {
 
     // OPTION A: Write directly to Supabase REST
     if (useSupabaseRest()) {
-      const baseUrl = process.env.SUPABASE_URL;
+      const baseUrl = getCleanSupabaseUrl();
 
       const updateData = {};
       if (name !== undefined) updateData.name = name.trim();
@@ -271,7 +279,7 @@ router.delete('/:id', async (req, res, next) => {
 
     // OPTION A: Write directly to Supabase REST
     if (useSupabaseRest()) {
-      const baseUrl = process.env.SUPABASE_URL;
+      const baseUrl = getCleanSupabaseUrl();
       const response = await fetch(`${baseUrl}/rest/v1/leads?id=eq.${id}`, {
         method: 'DELETE',
         headers: {
