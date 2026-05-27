@@ -1,8 +1,8 @@
-# 🚀 LeadFlow CRM - Premium Lead Management System (Mini CRM)
+# 🚀 LeadFlow CRM - Premium Simplified Lead Management System
 
-LeadFlow CRM is a full-stack, state-of-the-art **Lead Management System (Mini CRM)** engineered with **React** (Vite), **Node.js** (Express), and **PostgreSQL**. 
+LeadFlow CRM is a full-stack, state-of-the-art **Lead Management System (Mini CRM)** engineered with **React** (Vite), **Node.js** (Express), and **Supabase (PostgreSQL)**. 
 
-Designed with modern UI aesthetics—including an elegant glassmorphism overlay, responsive CSS grids, dynamic KPI dashboards, slide-in toasts, full client-side validations, and direct WhatsApp CRM reach-outs—it is built with clean, comment-rich, beginner-friendly code.
+This version has been beautifully simplified to remove all administrative login gates, keeping the CRM entirely open, extremely fast, and lightweight. Anyone can add, view, update status, and delete leads directly without any authentication required.
 
 ---
 
@@ -11,11 +11,11 @@ Designed with modern UI aesthetics—including an elegant glassmorphism overlay,
 * **📊 Live Dashboard Statistics:** Instantly displays *Total*, *Interested*, and *Converted* metrics, including dynamic conversion rate math percentages.
 * **🌗 Intelligent Theme Selector:** Smooth transitions between a sleek Light mode and a highly-calibrated, high-contrast Slate Dark mode.
 * **📱 Responsive Multi-View Layout:** Switch dynamically between a responsive **Card Grid** view and a clean **Data Table** view.
-* **🛡️ Secure Admin Area:** Simple administrator session login (`JWT` based). Keeps standard actions open but secures destructive lead deletions to authenticated admins.
+* **⚡ Supabase REST Direct Connection:** Features a dual-backend connector. Bypasses raw connection pooling issues by dynamically talking directly to Supabase REST endpoints when configuring API keys.
 * **💬 WhatsApp Click-to-Chat:** Direct integration utilizing WhatsApp deep links, auto-populating custom reach-out messages for the lead's name.
-* **⚡ Robust Search & Filters:** Search fuzzy strings (name/phone) and instantly filter directories by lead status and communication source.
+* **🔍 Fuzzy Search & Filter Queries:** Search fuzzy strings (name/phone) and instantly filter directories by lead status and communication source.
 * **🛠️ Full Validations:** In-app real-time feedback with custom warnings for names, phone numbers, and communication channels.
-* **📦 Production Architecture:** Clean separation between `client/` and `server/` with global Express error catchers, parameter query sanitization, and structured indexes.
+* **📦 Lightweight & Structured:** Extremely clean folder layout, removing bloated auth routes, middlewares, and local session variables for maximum performance.
 
 ---
 
@@ -28,27 +28,24 @@ Designed with modern UI aesthetics—including an elegant glassmorphism overlay,
 | | Custom Styling | **CSS3 Variables (Vanilla CSS)** |
 | | Graphic Assets | **Lucide-React** |
 | **Backend** | API Engine | **Node.js / Express** |
-| | DB Client | **pg (node-postgres)** |
-| | Authentication | **jsonwebtoken (JWT), bcryptjs** |
+| | DB Client | **pg (node-postgres) & Native Fetch** |
 | | Logger | **Morgan** |
-| **Database** | Database Engine | **PostgreSQL** |
+| **Database** | Database Engine | **PostgreSQL (Supabase)** |
 
 ---
 
-## 📂 Project Structure
+## 📂 Simplified Project Structure
 
 ```text
 ├── database/
 │   └── schema.sql          # PostgreSQL table creation & seed queries
 ├── server/
 │   ├── config/
-│   │   └── db.js           # PostgreSQL client pool configuration
+│   │   └── db.js           # PostgreSQL client pool configuration (local fallback)
 │   ├── middleware/
-│   │   ├── auth.js         # JWT verification middleware
 │   │   └── errorHandler.js # Global Express centralized error handling
 │   ├── routes/
-│   │   ├── auth.js         # Admin authorization endpoint
-│   │   └── leads.js        # REST endpoints (GET, POST, PUT, DELETE) for CRM
+│   │   └── leads.js        # REST endpoints (GET, POST, PUT, DELETE) with Supabase REST
 │   ├── .env.example        # Environment variables configuration template
 │   ├── package.json        # Backend npm script declarations
 │   └── index.js            # Main Express application orchestrator
@@ -59,14 +56,14 @@ Designed with modern UI aesthetics—including an elegant glassmorphism overlay,
 │   │   │   ├── Dashboard.jsx # Dynamic statistics metrics header
 │   │   │   ├── LeadCard.jsx  # Lead layout card with WhatsApp button
 │   │   │   ├── LeadForm.jsx  # Multi-state validator lead entry form
-│   │   │   ├── Login.jsx     # Slide-in admin authentication modal
-│   │   │   ├── Navbar.jsx    # Sticky navigation, auth switches & theme selectors
+│   │   │   ├── Navbar.jsx    # Sticky navigation & theme selectors
 │   │   │   └── Toast.jsx     # Self-dismissing UI toast feedback
 │   │   ├── services/
-│   │   │   └── api.js        # Axios instance configuring JWT request wrappers
+│   │   │   └── api.js        # Axios instance configured with base URL
 │   │   ├── App.jsx           # Main controller orchestration
 │   │   └── index.css         # CSS design token custom variables stylesheet
 │   └── package.json        # Frontend npm script declarations
+├── .gitignore              # Safely ignores node_modules and private .env configurations
 └── README.md               # Extensive guide setup & project highlights
 ```
 
@@ -74,20 +71,16 @@ Designed with modern UI aesthetics—including an elegant glassmorphism overlay,
 
 ## ⚙️ Installation & Setup
 
-Follow these instructions to run the full-stack system locally:
+Follow these instructions to run the simplified full-stack system locally:
 
-### 1. Database Setup (PostgreSQL)
-1. Launch your PostgreSQL CLI (`psql`) or open an interface like **pgAdmin**.
-2. Create a new database named `lead_crm`:
+### 1. Database Setup (Supabase)
+1. Go to your **Supabase Dashboard** -> **SQL Editor**.
+2. Click **New Query**.
+3. Copy the full content of the [database/schema.sql](database/schema.sql) file and click **Run**.
+4. **Important (Disable RLS for public access):** Create a new query, paste the following command, and click **Run** to allow the API to write leads:
    ```sql
-   CREATE DATABASE lead_crm;
+   ALTER TABLE leads DISABLE ROW LEVEL SECURITY;
    ```
-3. Execute the SQL script located in `database/schema.sql` to build tables, constraints, performance indexes, and seed mock data:
-   ```bash
-   # From your terminal:
-   psql -U postgres -d lead_crm -f database/schema.sql
-   ```
-   *(Alternatively, copy-paste the queries inside `database/schema.sql` directly into your query editor and execute them).*
 
 ---
 
@@ -101,23 +94,20 @@ Follow these instructions to run the full-stack system locally:
    ```bash
    cp .env.example .env
    ```
-4. Verify the database configurations inside `.env`:
+4. Verify the database configurations inside `.env` using your **Supabase REST credentials** (found under Project Settings -> API):
    ```env
    PORT=5000
-   PG_HOST=localhost
-   PG_USER=postgres
-   PG_PASSWORD=your_postgres_password_here
-   PG_DATABASE=lead_crm
-   PG_PORT=5432
-   JWT_SECRET=supersecretcrmtokenkey123
-   ADMIN_USERNAME=admin
-   ADMIN_PASSWORD=admin123
+   NODE_ENV=development
+   
+   # Supabase REST Direct Connection
+   SUPABASE_URL=https://[YOUR-PROJECT-ID].supabase.co
+   SUPABASE_KEY=your_supabase_anon_publishable_key_here
    ```
-5. Start the backend development server using nodemon:
+5. Start the backend development server:
    ```bash
    npm run dev
    ```
-   The API will launch successfully at: `http://localhost:5000`
+   The API will launch successfully at: `http://127.0.0.1:5000`
 
 ---
 
@@ -136,16 +126,6 @@ Follow these instructions to run the full-stack system locally:
 
 ---
 
-## 🔑 Default Administrator Credentials
-
-To test the admin functionality (such as deleting leads or updating information), authenticate using:
-* **Username:** `admin`
-* **Password:** `admin123`
-
----
-
-## 🚀 Advanced Performance Configurations
-
-* **Performance Optimization:** Index hooks on `status` and `source` columns guarantee ultra-fast querying as the database grows to thousands of records.
-* **Request Security:** All SQL operations utilize parameterized arguments (`$1`, `$2`, etc.), preventing SQL injections.
-* **Auto-Session Restore:** Logging in securely caches token configurations inside local storage. Reloading the browser preserves your administrative session seamlessly.
+## 💡 Port Mismatch Troubleshoot
+If your frontend returns a network error `Failed to connect to the backend server`, it is usually because the browser resolves `localhost` to IPv6 (`::1`) while the server binds to IPv4 (`127.0.0.1`). 
+This CRM solves that by explicitly binding the Express server to `0.0.0.0` and routing Axios requests directly to `http://127.0.0.1:5000/api` for absolute stability!
